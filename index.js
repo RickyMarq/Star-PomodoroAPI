@@ -10,11 +10,6 @@ module.exports = app;
 app.use(cors());
 app.use(express.json());
 
-/* 
-Comment p/ depois: Lembrar de abrir o IP do banco para ser acessado por qualquer lugar.
-Pois era isso que estava dando problema desde antes.
-*/
-
 app.listen(port, () => console.log(`Server rodando http://localhost:${port}`));
 
 app.use(cors({
@@ -22,13 +17,12 @@ app.use(cors({
   }
 ));
 
-const DB_User = 'henriquefmcosta75'
-const DB_PASSWORD = encodeURIComponent('AZZDGMhYcIcpV8SB')
+const DB_User = 'henriquefmcosta755'
+const DB_PASSWORD = encodeURIComponent('AZZDGMhYcIcpV8SBB')
 
 mongoose.connect(`mongodb+srv://henriquefmcosta75:${DB_PASSWORD}@databasestarpomodoro.9gmw0cy.mongodb.net/?retryWrites=true&w=majority`, { useNewUrlParser: true, useUnifiedTopology: true},)
     .then(() => console.log("Connected to MongoDb"))
     .catch(err => console.error('Failed to connect to MongoDB:', err));
-
 
 const motivationalScheme = require('./Model/Model');
 const unmotivotionalScheme = require('./Model/Unmotivotinal');
@@ -36,22 +30,14 @@ const motivotionalJSON = require('./JSON/Motivotional.json');
 const unmotivadedJSON = require('./JSON/Unmotivaded.json');
 const phrasesUnMo = JSON.parse(fs.readFileSync('./JSON/Unmotivaded.json'));
 
-/*
-app.get("/motivonalphrases", (req, res) => {
-    res.status(200).json(motivotionalJSON)
-});
-
-app.get("/unmotivedphrases", (req, res) => {
-    const randomIndex = Math.floor(Math.random() * phrasesUnMo.lenght);
-    const randomPhrase = phrasesUnMo[randomIndex].phrase;
-    res.status(200).json({ phrase: randomPhrase })
-});
-*/
+// Retorna um json com todas as frases motivacionais.
 
 app.get("/getmotivotionalphrase", async (req, res) => {
     const data = await motivationalScheme.find({})
     res.send({phrase: data})
 });
+
+// Retorna um json com 1 frase motivacional aleatória.
 
 app.get("/getmotivotionalrandomphrase", async (req, res) => {
     try {
@@ -62,11 +48,13 @@ app.get("/getmotivotionalrandomphrase", async (req, res) => {
         { $skip: getRandomIndex },
         { $limit: 1 },
     ]);
-    res.status(200).json({ phrase: randomPhrase[0].phrase });
+    res.status(200).json({ phrase: randomPhrase[0].phrase, author: randomPhrase[0].author});
     } catch {
         res.status(500)
     }
 });
+
+// Retorna um json com 1 frase desmotivacional aleatória.
 
 app.get("/getunmotivotionalrandomphrase", async (req, res) => {
     try {
@@ -77,13 +65,13 @@ app.get("/getunmotivotionalrandomphrase", async (req, res) => {
         { $skip: getRandomIndex },
         { $limit: 1 },
     ]);
-    res.status(200).json({ phrase: randomPhrase[0].phrase });
+    res.status(200).json({ phrase: randomPhrase[0].phrase, author: randomPhrase[0].author});
     } catch {
         res.status(500)
     }
 });
 
-// Add to Database.
+// Adiciona o JSON na Database.
 
 app.get("/addMotivotionalPhrasesToDatabase", (req, res) => {
     try {
